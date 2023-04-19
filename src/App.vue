@@ -11,15 +11,15 @@ import HelloWorld from './components/HelloWorld.vue'
     fixed-tabs
     bg-color="indigo-darken-2"
   >
-    <v-tab>
-      Option
+    <v-tab to="/">
+      Daily Refresh
     </v-tab>
-    <v-tab>
-      Another Option
+    <v-tab to="/about">
+      Favorites
     </v-tab>
   </v-tabs>
   <v-row align-content="center" justify="center">
-    <v-col cols="6">
+    <v-col cols="10">
       <RouterView />
     </v-col>
   </v-row>
