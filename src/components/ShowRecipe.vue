@@ -7,38 +7,98 @@ import { ref } from 'vue'
   // }
   // })
 
-  const name = ref("abc");
-  const ingredients = [
-    {
-      name: 'tomato',
-      portion: '3'
-    }
-  ];
-  const instructions = [
-    {
-      text: 'This is the first step',
-      img: null,
-    }
-  ];
+  // const recipe = ref({
+  //   ID: [idMeal],
+  //   Name: [strMeal],
+  //   Region: [strRegion],
+  //   TypeOfMeal: [strTags],
+  //   Thumbnail: [strMealThumb],
+  //   Serving: <str>,
+  //   CookingTime: <str>,
+  //   Ingredients: [
+  //     {
+  //       Name: [strIngredientX],
+  //       Portion: [strMeasureX]
+  //     }
+  //   ],
+  //   Instructions: [
+  //     ""
+  //   ],
+  //   credit: [strSource],
+  //   videoLink: [strYouTube]
+  // })
+
+  const recipe = ref({
+    ID: 1,
+    Name: "Beef Stew",
+    Region: "Chinese",
+    TypeOfMeal: "Main dish",
+    Thumbnail: null,
+    Serving: "3 people",
+    CookingTime: "30 minutes",
+    Ingredients: [
+      {
+        Name: "Beef",
+        Portion: "4 pounds"
+      },
+      {
+        Name: "Carrot",
+        Portion: "3"
+      }
+    ],
+    Instructions: [
+      "This is the first step",
+      "This is the second step",
+      "This is the final step",
+    ],
+    credit: "Gabriel Chung",
+    videoLink: "www.abcdef.com"
+  })
 </script>
 
 <template>
-  <div class="greetings">
-    <h1 class="green">{{ name }}</h1>
+  <div>
+    <v-row>
+      <v-col>
+        <div class="d-flex justify-center text-h2 green">{{ recipe.Name }}</div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="4">
+        <div class="text-h3">Ingredients</div>
+        <v-table density="compact">
+          <thead>
+            <tr>
+              <th class="text-left">
+                <b>Name</b>
+              </th>
+              <th class="text-left">
+                <b>Portion</b>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="ing in recipe.Ingredients"
+              :key="ing.Name"
+            >
+              <td>{{ ing.Name }}</td>
+              <td>{{ ing.Portion }}</td>
+            </tr>
+          </tbody>
+        </v-table>
+      </v-col>
+      <v-col>
+        <div class="d-flex text-h3 justify-center">Instructions</div>
+        <div v-for="ins in recipe.Instructions">
+          <div class="text-h5">
+            {{ ins }}
+          </div>
+          <br />
+        </div>
+      </v-col>
+    </v-row>
 
-    <ul>
-      <h2 class="blue">Ingredients</h2>
-      <li v-for="ing in ingredients">
-        {{ ing.name }} : {{ ing.portion }}
-      </li>
-    </ul>
-
-    <ul>
-      <h2 class="blue">Instructions</h2>
-      <li v-for="ins in instructions">
-        {{ ins.text }}
-      </li>
-    </ul>
   </div>
 </template>
 

@@ -12,14 +12,14 @@ import HelloWorld from './components/HelloWorld.vue'
     bg-color="amber-darken-1"
   >
     <v-tab to="/">
-      Option
+      Daily Refresh
     </v-tab>
     <v-tab to="/about">
-      Another Option
+      Favorites
     </v-tab>
   </v-tabs>
   <v-row align-content="center" justify="center" class="main-content">
-    <v-col cols="6">
+    <v-col cols="10">
       <RouterView />
     </v-col>
   </v-row>
