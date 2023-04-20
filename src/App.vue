@@ -4,21 +4,21 @@ import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <div class="d-flex align-center text-h2 flex-column">
-    Yum Yum
+  <div class="d-flex align-center text-h2 flex-column banner">
+    <span>Yum Yum</span>
   </div>
   <v-tabs
     fixed-tabs
-    bg-color="indigo-darken-2"
+    bg-color="amber-darken-1"
   >
-    <v-tab>
+    <v-tab to="/">
       Option
     </v-tab>
-    <v-tab>
+    <v-tab to="/about">
       Another Option
     </v-tab>
   </v-tabs>
-  <v-row align-content="center" justify="center">
+  <v-row align-content="center" justify="center" class="main-content">
     <v-col cols="6">
       <RouterView />
     </v-col>
@@ -26,21 +26,23 @@ import HelloWorld from './components/HelloWorld.vue'
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.banner{
+  background-image: url('./assets/images/banner.png');
+  background-size: contain;
+  background-repeat: repeat;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.banner span {
+  /* left: 0; */
+  z-index: 100;
+  background-color:rgba(251, 231, 183, 0.7);
+  color: black;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.main-content {
+  background-image: url('./assets/images/cooking_icon.png');
+  background-size: contain;
+  background-repeat: repeat;
 }
 
 nav a.router-link-exact-active {
@@ -62,10 +64,10 @@ nav a:first-of-type {
 }
 
 @media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+  .banner{
+    background-image: url('./assets/images/banner.png');
+    background-size: contain;
+    background-repeat: repeat;
   }
 
   .logo {
