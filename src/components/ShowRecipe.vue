@@ -86,8 +86,8 @@ export default {
           "This is the final step",
           "This is the final step",
         ],
-        credit: "Gabriel Chung",
-        videoLink: "www.abcdef.com"
+        Credit: "Gabriel Chung",
+        VideoLink: "www.abcdef.com"
       }
     }
   },
