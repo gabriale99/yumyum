@@ -53,6 +53,9 @@ while len(meals) <= 100000:
 
 meals['Serving'] = meals['ID'].apply(lambda x: random_serving(x))
 meals['CookingTime'] = meals['ID'].apply(lambda x: random_cooking_time(x))
-meals = meals.drop(columns=['ID']).reset_index(names=['ID'])
 
-meals.to_csv("transformed_meals.csv")
+meals = meals[['ID', 'Name', 'Region', 'TypeOfMeal', 'Thumbnail', 'Serving', 'CookingTime', 'Ingredients', 'Instructions', 'Credit', 'VideoLink']]
+meals = meals.drop(columns=['ID']).reset_index(names=['ID'])
+meals['ID'] = meals['ID'] + 1
+
+meals.to_csv("transformed_meals.csv", index=False)
