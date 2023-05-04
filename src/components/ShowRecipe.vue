@@ -1,11 +1,22 @@
 <script>
+import { mapStores } from 'pinia';
+import { useFeedbackStore } from '../stores/feedback';
+import FeedbackPopup from '../components/FeedbackPopup.vue'
+
 export default {
+  components: {
+    FeedbackPopup,
+  },
   props: {
     recipeID: Number,
+  },
+  computed: {
+    ...mapStores(useFeedbackStore),
   },
   data() {
     return {
       favorited: false,
+      footer: null,
       recipe: {
         ID: 1,
         Name: "Beef Stew",
@@ -87,14 +98,14 @@ export default {
           "This is the final step",
         ],
         Credit: "Gabriel Chung",
-        VideoLink: "www.abcdef.com"
+        VideoLink: "https://www.youtube.com"
       }
     }
   },
   methods: {
     favoriteRecipe() {
-      console.log(this.recipe.ID)
-      this.favorited = true;
+      if (!this.favorited)
+        this.favorited = true;
     },
   },
   mounted() {
@@ -134,11 +145,17 @@ export default {
         videoLink: "www.abcdef.com"
       }
     }
+
+    this.footer = `Credit: ${this.recipe.Credit}` + (this.recipe.VideoLink? ` | <a href='${this.recipe.VideoLink}' target="_blank">Video Tutorial</a>` : '');
   },
 }
 </script>
 
 <template>
+  <FeedbackPopup
+    :recipeID="recipe.ID"
+  />
+
   <div class="recipe">
     <v-row>
       <v-col class="d-flex flex-row justify-center align-center">
@@ -150,14 +167,26 @@ export default {
           @click="$emit('returnToList')"
         ></v-btn>
         <div class="d-flex justify-center text-h2">{{ recipe.Name }}</div>
-        <v-btn
-          v-show="!recipeID"
-          class="ma-2 favorite-icon"
-          :color="!favorited? 'indigo' : 'red'"
-          icon="mdi-heart-circle"
-          @click="favoriteRecipe"
-          :disabled="favorited"
-        ></v-btn>
+        <div class="right-icons">
+          <v-btn
+            v-show="!recipeID"
+            class="ma-2"
+            :color="!favorited? 'indigo' : 'red'"
+            icon="mdi-heart-circle"
+            @click="favoriteRecipe"
+            :disabled="favorited"
+          ></v-btn>
+          <v-btn
+            class="ma-2"
+            icon="mdi-comment"
+            @click="feedbackStore.openClose"
+          ></v-btn>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col class="d-flex flex-row justify-center text-h5">
+        {{ recipe.Region }} | {{ recipe.TypeOfMeal }} | {{ recipe.Serving }} | {{ recipe.CookingTime }}
       </v-col>
     </v-row>
     <v-row class="level-2-row">
@@ -199,18 +228,15 @@ export default {
         </div>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col v-html="footer">
+      </v-col>
+    </v-row>
 
   </div>
 </template>
 
 <style scoped>
-
-  .favorite-icon {
-    margin-right: 10px;
-    position: absolute;
-    right: 0;
-  }
-
   .ingredients {
     margin: 5px 0px;
     max-height: 70%;
@@ -230,7 +256,7 @@ export default {
   }
 
   .level-2-row {
-    height: inherit;
+    height: 80%;
   }
 
   .level-2-col {
@@ -249,5 +275,11 @@ export default {
     margin-left: 10px;
     position: absolute;
     left: 0;
+  }
+
+  .right-icons {
+    margin-left: 10px;
+    position: absolute;
+    right: 0;
   }
 </style>

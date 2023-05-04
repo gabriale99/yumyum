@@ -87,11 +87,6 @@ export default {
       this.selectedRecipe = id;
     }
   },
-  mounted() {
-    FB.getLoginStatus(function(response) {
-        statusChangeCallback(response);
-    });
-  },
 }
 </script>
 

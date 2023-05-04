@@ -1,0 +1,3 @@
+aws cloudformation deploy region us-west-1 template-file web-ui-stack.yaml stack-name yumyum-ui capabilities CAPABILITY_IAM
+
+aws cloudformation deploy --region us-west-1 --template-file webs3bucket_with_cloudfront.yaml --stack-name yumyum-ui-cloudfront --parameter-overrides S3BucketName=yumyum-ui-websitebucket-1tx4m4qdeu0lv
