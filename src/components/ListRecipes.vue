@@ -1,5 +1,4 @@
 <script>
-// import { ref } from 'vue';
 import ShowRecipe from '../components/ShowRecipe.vue'
 
 export default {
@@ -87,7 +86,12 @@ export default {
     selectRecipe(id) {
       this.selectedRecipe = id;
     }
-  }
+  },
+  mounted() {
+    FB.getLoginStatus(function(response) {
+        statusChangeCallback(response);
+    });
+  },
 }
 </script>
 
@@ -97,7 +101,6 @@ export default {
       <v-card
         v-for="r in recipes"
         :key="r.ID"
-        variant="outlined"
         class="recipe-2"
         @click="selectRecipe(r.ID)"
       >

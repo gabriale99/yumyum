@@ -26,3 +26,7 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# large .csv
+meals.csv
+transformed_meals.csv

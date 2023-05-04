@@ -36,6 +36,7 @@ import { RouterView } from 'vue-router'
   z-index: 100;
   background-color:rgb(255, 179, 0);
   color: black;
+  padding: 0px 5px;
 }
 
 .main-content {
