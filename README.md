@@ -55,3 +55,14 @@ npm run test:e2e
 ```sh
 npm run lint
 ```
+
+### deploy to aws
+
+```sh
+aws cloudformation deploy \
+--region us-east-1 \
+--template-file web-ui-stack.yaml \
+--stack-name yumyum-ui \
+--capabilities CAPABILITY_IAM
+```
+
