@@ -1,4 +1,4 @@
-<script setup>
+<script>
 import { RouterView } from 'vue-router'
 </script>
 
@@ -19,7 +19,7 @@ import { RouterView } from 'vue-router'
     </v-tab>
   </v-tabs>
     
-  <div class="main-content">
+  <div class="d-flex main-content justify-center">
     <RouterView />
   </div>
 </template>
@@ -32,7 +32,6 @@ import { RouterView } from 'vue-router'
 }
 
 .banner span {
-  /* left: 0; */
   z-index: 100;
   background-color:rgb(255, 179, 0);
   color: black;

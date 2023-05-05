@@ -14,6 +14,7 @@ const { isFirstTime } = storeToRefs(user);
 <template>
   <main>
     <FacebookLogin v-if="isFirstTime"/>
+    <!-- <UserPreference v-if="isFirstTime"/> -->
     <ShowRecipe v-else/>
   </main>
 </template>
