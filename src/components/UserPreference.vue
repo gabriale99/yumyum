@@ -1,6 +1,7 @@
 <template>
-  <div class="preference-container">
-    <v-container>
+  <v-container class="d-flex justify-center align-center flex-column main-background">
+    <span class="text-h2 pref-title">Yum Yum</span>
+    <div class="pref-container">
       <v-row class="cuisine">
         <v-col>
           <!-- Cuisine Preference -->
@@ -21,7 +22,7 @@
                 hide-details></v-checkbox>
             </v-col>
           </v-row>
-
+  
           <!-- Vegetarian -->
           <v-row>
             <v-col class="d-flex flex-row align-center">
@@ -32,7 +33,7 @@
               </v-radio-group>
             </v-col>
           </v-row>
-
+  
           <!-- Ingredients and Allergic food -->
           <v-row>
             <v-col cols="6">
@@ -62,32 +63,6 @@
                 </v-col>
               </v-row>
             </v-col>
-            <v-col cols="6">
-              <!-- Text input -->
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    placeholder="Insert allergic food"
-                    density="compact"
-                    v-model="allergy"
-                    @keypress.enter="addAllergic"
-                    :bg-color="inputColor"></v-text-field>
-                </v-col>
-              </v-row>
-              <!-- Chips -->
-              <v-row>
-                <v-col class="ingredients-adder">
-                  <v-chip
-                    v-for="al in allergies"
-                    class="ma-2"
-                    closable
-                    :color="chipColor"
-                  >
-                    {{ al }}
-                  </v-chip>
-                </v-col>
-              </v-row>
-            </v-col>
           </v-row>
           <v-row>
             <v-col>
@@ -98,12 +73,15 @@
           </v-row>
         </v-col>
       </v-row>
-    </v-container>
-  </div>
+    </div>
+  </v-container>
 </template>
 
 <script>
 import colors from 'vuetify/lib/util/colors'
+import { mapState } from 'pinia';
+import { useUserStore } from '../stores/user';
+import router from '../router';
 
 export default {
   data() {
@@ -118,6 +96,9 @@ export default {
       selectedCuisines: [],
       vegetarian: false,
     }
+  },
+  computed: {
+    ...mapState(useUserStore, ['userID']),
   },
   methods: {
     addAllergic() {
@@ -145,7 +126,7 @@ export default {
       // let api = '';
 
       let params = {
-        UserID: '',
+        UserID: this.userID,
         Ingredients: this.ingredients,
         Preferences: this.selectedCuisines,
         Vegetarian: this.vegetarian,
@@ -153,13 +134,15 @@ export default {
       }
 
       console.log(params);
+
+      router.push('/')
     }
   },
   mounted() {
     let cuisines = [
       'British', 'Malaysian', 'Indian', 'American', 'Mexican', 'Russian', 'French',
       'Canadian', 'Jamaican', 'Chinese', 'Italian', 'Dutch', 'Vietnamese', 'Polish',
-      'Irish', 'Croatian', 'Unknown', 'Japanese', 'Moroccan', 'Tunisian', 'Turkish',
+      'Irish', 'Croatian', 'Japanese', 'Moroccan', 'Tunisian', 'Turkish',
       'Greek', 'Egyptian', 'Portuguese', 'Kenyan', 'Thai', 'Spanish',
     ]
 
@@ -178,9 +161,10 @@ export default {
 <style scoped>
 
   .cuisine {
-    background-color: rgba(253, 224, 181, 0.9);
+    background-color: rgba(248, 196, 118, 2);
     border-radius: 10px;
-    height: 80%;
+    width: 80vw;
+    margin: 5px;
   }
 
   .cuisine-title {
@@ -188,15 +172,25 @@ export default {
   }
 
   .ingredients-adder {
-    height: 250px;
-    max-height: 250px;
+    height: 20vh;
+    max-height: 20vh;
     overflow: auto;
   }
 
-  .preference-container {
+  .pref-container {
     z-index: 100;
-    background-color: rgba(245, 233, 212, 0.7);
     padding: 10px;
-    height: inherit;
+  }
+
+  .pref-title {
+    background-color: rgba(248, 196, 118, 2);
+    padding: 20px;
+    border-radius: 25px;
+  }
+
+  .v-container {
+    height: 100vh;
+    width: 100vw;
+    max-width: none;
   }
 </style>

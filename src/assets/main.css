@@ -7,10 +7,6 @@
   font-weight: normal;
 }
 
-html, body {
-  overflow: hidden !important;
-}
-
 main {
   height: inherit;
 }
@@ -20,4 +16,11 @@ a,
   text-decoration: none;
   color: hsla(160, 100%, 37%, 1);
   transition: 0.4s;
+}
+
+.main-background {
+  background-image: url('../assets/images/cooking_icon.png');
+  background-repeat: repeat;
+  background-position: center;
+  background-size: contain;
 }

@@ -1,6 +1,7 @@
 <script>
-import { mapStores } from 'pinia';
+import { mapState, mapStores } from 'pinia';
 import { useFeedbackStore } from '../stores/feedback';
+import { useUserStore } from '../stores/user';
 
 export default {
   props: {
@@ -8,6 +9,7 @@ export default {
   },
   computed: {
     ...mapStores(useFeedbackStore),
+    ...mapState(useUserStore, ['userID']),
   },
   data() {
     return {
@@ -24,7 +26,7 @@ export default {
       // let api = '';
 
       let params = {
-        UserID: '',
+        UserID: this.userID,
         Feedback: this.feedback,
         Category: this.type,
       }

@@ -3,7 +3,13 @@ import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore("user", {
   state: () => ({
-    user: null,
-    isFirstTime: true,
+    accessToken: null,
+    userID: null,
   }),
+  actions: {
+    setupUser(userID, accessToken) {
+      this.userID = userID;
+      this.accessToken = accessToken;
+    },
+  }
 });

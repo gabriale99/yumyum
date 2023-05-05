@@ -179,8 +179,8 @@ export default {
           "This is the final step",
           "This is the final step",
         ],
-        Credit: "Gabriel Chung",
-        VideoLink: "https://www.youtube.com"
+        Credit: "https://www.youtube.com",
+        VideoLink: "https://www.facebook.com"
       }
     }
   },
@@ -223,8 +223,8 @@ export default {
           "This is the final step",
           "This is the final step",
         ],
-        Credit: "Gabriel Chung",
-        VideoLink: "www.abcdef.com"
+        Credit: "https://www.youtube.com",
+        VideoLink: "https://www.facebook.com"
       }
     }
   },
@@ -236,7 +236,7 @@ export default {
     border-left: 2px solid rgb(7, 29, 100);
     padding-left: 12px;
     color: black;
-    max-height: 65vh;
+    max-height: 68vh;
   }
 
   .i-title {
@@ -245,16 +245,13 @@ export default {
 
   .instructions {
     overflow-y: auto;
-
-    height: 40%;
   }
 
   .recipe-overlay {
     z-index: 100;
-    background-color:rgba(245, 233, 212, 0.795);
+    background-color:rgba(252, 230, 194, 0.9);
     color: black;
     padding: 10px;
-    height: inherit;
   }
 
   .return-icon {
