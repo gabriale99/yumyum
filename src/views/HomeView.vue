@@ -36,7 +36,7 @@ if (!userID.value) {
         Favorites
       </v-tab>
     </v-tabs>
-    <div class="d-flex main-content justify-center">
+    <div class="d-flex main-background justify-center">
       <ShowRecipe v-if="showRecipe" />
       <ListRecipes v-else />
     </div>
@@ -55,13 +55,6 @@ if (!userID.value) {
   background-color:rgb(255, 179, 0);
   color: black;
   padding: 0px 5px;
-}
-
-.main-content {
-  background-image: url('../assets/images/cooking_icon.png');
-  background-repeat: repeat;
-  background-position: center;
-  background-size: contain;
 }
 
 .tabs {
