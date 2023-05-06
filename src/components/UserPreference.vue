@@ -64,6 +64,7 @@
               </v-row>
             </v-col>
           </v-row>
+
           <v-row>
             <v-col>
               <v-btn color="rgb(250, 207, 142)" @click="submitPreferences">
@@ -78,16 +79,16 @@
 </template>
 
 <script>
+import axios from 'axios';
 import colors from 'vuetify/lib/util/colors'
 import { mapState } from 'pinia';
 import { useUserStore } from '../stores/user';
 import router from '../router';
+import { environment } from '../environments/environment'
 
 export default {
   data() {
     return {
-      allergy: null,
-      allergies: [],
       chipColor: colors.black,
       inputColor: colors.grey.lighten4,
       cuisines: [],
@@ -101,14 +102,6 @@ export default {
     ...mapState(useUserStore, ['userID']),
   },
   methods: {
-    addAllergic() {
-      if (!this.allergy) {
-        return;
-      }
-
-      this.allergies.push(this.allergy);
-      this.allergy = null;
-    },
     addIngredient() {
       if (!this.ingredient) {
         return;
@@ -117,25 +110,28 @@ export default {
       this.ingredients.push(this.ingredient);
       this.ingredient = null;
     },
-    submitPreferences() {
+    async submitPreferences() {
       if (!this.selectedCuisines.length) {
         // warning
         return;
       }
 
-      // let api = '';
+      let api = environment.yumyumapi;
+      console.log(api)
 
       let params = {
         UserID: this.userID,
         Ingredients: this.ingredients,
         Preferences: this.selectedCuisines,
         Vegetarian: this.vegetarian,
-        Allergy: this.allergies,
       }
 
       console.log(params);
 
-      router.push('/')
+      let resp = await axios.put(`${api}user`, params);
+      console.log(resp);
+
+      // router.push('/')
     }
   },
   mounted() {
