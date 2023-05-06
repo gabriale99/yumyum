@@ -55,7 +55,7 @@ Resources:
         HttpVersion: 'http1.1'
         IPV6Enabled: false
         Origins:
-          - DomainName: !Sub '${S3BucketName}.s3-us-west-1.amazonaws.com'
+          - DomainName: !Sub '${S3BucketName}.s3-us-east-1.amazonaws.com'
             Id: !Sub 'S3-${S3BucketName}'
             OriginPath: ''
             S3OriginConfig:

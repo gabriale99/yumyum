@@ -55,3 +55,19 @@ npm run test:e2e
 ```sh
 npm run lint
 ```
+aws cloudformation deploy \
+--region us-east-1 \
+--template-file web-ui-stack.yaml \
+--stack-name yumyum-ui \
+--capabilities CAPABILITY_IAM
+
+
+aws cloudformation deploy \
+--region us-east-1 \
+--template-file webs3bucket_with_cloudfront.yaml \
+--stack-name yumyum-ui-cloudfront \
+--parameter-overrides S3BucketName=yumyum-ui-websitebucket-wk7m12rje6di
+
+Identity pool ID 
+us-east-1:dc7e6ff8-3555-4f6f-ba1b-a30c5510fe13
+APP Id : 2550952455058803
