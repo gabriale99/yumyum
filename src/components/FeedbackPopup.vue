@@ -1,51 +1,3 @@
-<script>
-import { mapState, mapStores } from 'pinia';
-import { useFeedbackStore } from '../stores/feedback';
-import { useUserStore } from '../stores/user';
-
-export default {
-  props: {
-    recipeID: Number,
-  },
-  computed: {
-    ...mapStores(useFeedbackStore),
-    ...mapState(useUserStore, ['userID']),
-  },
-  data() {
-    return {
-      feedback: "",
-      type: "Recipe",
-    }
-  },
-  methods: {
-    async submitFeedback() {
-      if (!this.feedback) {
-        return;
-      }
-
-      // let api = '';
-
-      let params = {
-        UserID: this.userID,
-        Feedback: this.feedback,
-        Category: this.type,
-      }
-
-      console.log(params);
-      this.feedback = "";
-      this.type = "Recipe";
-      // let response = await fetch(api, params);
-      // let json = await response.json();
-      // if (response.ok) {
-      // } else {
-      // }
-
-      this.feedbackStore.openClose();
-    }
-  },
-}
-</script>
-
 <template>
   <v-dialog
     v-model="feedbackStore.dialog"
@@ -75,6 +27,56 @@ export default {
     </v-card>
   </v-dialog>
 </template>
+
+<script>
+import axios from 'axios';
+import { mapState, mapStores } from 'pinia';
+import { useFeedbackStore } from '../stores/feedback';
+import { useUserStore } from '../stores/user';
+import { environment } from '../environments/environment'
+
+export default {
+  props: {
+    recipeID: Number,
+  },
+  computed: {
+    ...mapStores(useFeedbackStore),
+    ...mapState(useUserStore, ['userID']),
+  },
+  data() {
+    return {
+      feedback: "",
+      type: "Recipe",
+    }
+  },
+  methods: {
+    async submitFeedback() {
+      if (!this.feedback) {
+        return;
+      }
+
+      let api = environment.yumyumapi;
+
+      let params = {
+        UserID: this.userID,
+        Feedback: this.feedback,
+        Category: this.type,
+        RecipeID: this.type === 'Recipe'? this.recipeID : null
+      }
+      console.log(params);
+
+      let resp = await axios.put(`${api}feedback`, params);
+
+      if (resp.status === 200) {
+        this.feedback = "";
+        this.type = "Recipe";
+        this.feedbackStore.openClose();
+      }
+          
+    }
+  },
+}
+</script>
 
 <style scoped>
   .category-title {
