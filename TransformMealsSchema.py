@@ -8,16 +8,17 @@ from math import ceil, floor, isnan
 import pandas as pd
 import random
 import boto3
-import requests
 
 
 def transform_ingredients(ser):
     res = []
     for i in range(1, 21):
-        if 'strIngredient{0}'.format(i) != '':
+        col = 'strIngredient{0}'.format(i)
+        portion = 'strMeasure{0}'.format(i)
+        if isinstance(ser[col], str) and ser[col] != '':
             res.append({
-                'Name': ser['strIngredient{0}'.format(i)],
-                'Portion': ser['strMeasure{0}'.format(i)]
+                'Name': ser[col],
+                'Portion': ser[portion] if isinstance(ser[portion], str) else 'By user preference'
             })
         else:
             continue
@@ -41,12 +42,12 @@ def random_cooking_time(sd):
             if int(minute) == 0:
                 cook_time = str(hours) + " Hour"
             else:
-                cook_time = str(hours) + " Hour " + str(minute) + " Min"
+                cook_time = str(hours) + " Hour " + str(minute) + " Minutes"
         else:
             if int(minute) == 0:
                 cook_time = str(hours) + " Hours"
             else:
-                cook_time = str(hours) + " Hours " + str(minute) + " Min"
+                cook_time = str(hours) + " Hours " + str(minute) + " Minutes"
             
     return cook_time
 
@@ -80,36 +81,37 @@ meals['Ingredients'] = meals['Ingredients'].apply(lambda x: list(filter(lambda y
 
 meals = meals[['ID', 'Name', 'Region', 'TypeOfMeal', 'Thumbnail', 'Ingredients', 'Instructions', 'Credit', 'VideoLink']]
 
-temp = meals.copy() # Moved this here for the fix to work
-while len(meals) <= 50000: 
-#     temp = meals.copy()
-    temp['ID'] = temp['ID'] + 10000 # Added for temp ID fix - Sung Jun Bok
+meals = meals.fillna('')
+
+while len(meals) <= 50000:
+    temp = meals.copy()
     meals = pd.concat([meals, temp])
 
 meals['Serving'] = meals['ID'].apply(lambda x: random_serving(x))
 meals['CookingTime'] = meals['ID'].apply(lambda x: random_cooking_time(x))
 
-meals = meals[['ID', 'Name', 'Region', 'TypeOfMeal', 'Thumbnail', 'Serving', 'CookingTime', 
+meals = meals[['Name', 'Region', 'TypeOfMeal', 'Thumbnail', 'Serving', 'CookingTime', 
                'Ingredients', 'Instructions', 'Credit', 'VideoLink']]
 
-# meals = meals.drop(columns=['ID']).reset_index()
-# meals = meals.rename(columns={'index': 'ID'})
-# meals['ID'] = meals['ID'] + 1
+meals = meals.reset_index(drop=True).reset_index()
+meals = meals.rename(columns={'index': 'ID'})
+meals['ID'] = meals['ID'] + 1
 
-meals.to_csv("transformed_meals.csv", index=False)
+# meals.to_csv("transformed_meals.csv", index=False)
 
-df1 = meals.head(100).fillna('')
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-table_name = 'recipe4'
+dynamodb = boto3.resource('dynamodb', region_name='us-west-1')
+table_name = 'recipe'
 table = dynamodb.Table(table_name)
 
-# for idx, row in df1.iterrows():
-#     data = row.to_dict()
-
-#     response = table.put_item(Item=data)
+for idx, row in meals.iterrows():
+    data = row.to_dict()
+    try:
+        print(idx)    
+        response = table.put_item(Item=data)
     
-#     if response['ResponseMetadata']['HTTPStatusCode'] != 200:
-#             print('Error saving the recipe')
+    except Exception as e:
+        print(e)
+        break
 
 
 # In[ ]:
