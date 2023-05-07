@@ -7,7 +7,7 @@
           <!-- Cuisine Preference -->
           <v-row>
             <v-col>
-              <span class="cuisine-title text-h5">Cuisine Prefences</span>
+              <span class="text-h5">Cuisine Prefences</span>
             </v-col>
           </v-row>
           <v-row>
@@ -36,24 +36,29 @@
   
           <!-- Ingredients and Allergic food -->
           <v-row>
-            <v-col cols="6">
+            <v-col cols="8">
               <!-- Text input -->
               <v-row>
                 <v-col>
-                  <v-text-field
+                  <v-autocomplete
                     placeholder="Insert ingredient"
                     density="compact"
                     v-model="ingredient"
-                    @keypress.enter="addIngredient"
-                    :bg-color="inputColor">
-                  </v-text-field>
+                    :items="ingredients"
+                    :bg-color="inputColor"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col>
+                  <v-btn @click="addIngredient" color="rgb(250, 207, 142)">
+                    add ingredient
+                  </v-btn>
                 </v-col>
               </v-row>
               <!-- Chips -->
               <v-row class="ingredients-adder">
                 <v-col>
                   <v-chip
-                    v-for="ingr in ingredients"
+                    v-for="ingr in insertedIngredients"
                     class="ma-2"
                     closable
                     :color="chipColor"
@@ -94,6 +99,7 @@ export default {
       cuisines: [],
       ingredient: null,
       ingredients: [],
+      insertedIngredients: [],
       selectedCuisines: [],
       vegetarian: false,
     }
@@ -107,8 +113,35 @@ export default {
         return;
       }
 
-      this.ingredients.push(this.ingredient);
+      this.insertedIngredients.push(this.ingredient);
       this.ingredient = null;
+    },
+    async getCuisines() {
+      let api = environment.yumyumapi;
+
+      let resp = await axios.get(`${api}region`);
+
+      if (resp.status === 200) {
+        let cuisines = resp['data']['regions'];
+
+        // https://stackoverflow.com/questions/8495687/split-array-into-chunks
+        let transformedCuisines = [];
+        let chunkSize = 4;
+        for (let i = 0; i < cuisines.length; i += chunkSize) {
+          let chunk = cuisines.slice(i, i + chunkSize);
+          transformedCuisines.push(chunk)
+        }
+        this.cuisines = transformedCuisines;
+      }
+    },
+    async getIngredients() {
+      let api = environment.yumyumapi;
+
+      let resp = await axios.get(`${api}ingredient`);
+
+      if (resp.status === 200) {
+        this.ingredients = resp['data']['ingredients'];
+      }
     },
     async submitPreferences() {
       if (!this.selectedCuisines.length) {
@@ -121,35 +154,25 @@ export default {
 
       let params = {
         UserID: this.userID,
-        Ingredients: this.ingredients,
+        Ingredients: this.insertedIngredients,
         Preferences: this.selectedCuisines,
         Vegetarian: this.vegetarian,
       }
 
-      console.log(params);
+      // console.log(params);
 
       let resp = await axios.put(`${api}user`, params);
-      console.log(resp);
 
-      // router.push('/')
+      if (resp.status === 200) {
+        // console.log(resp.data['message']);
+        router.push('/')
+      }
+
     }
   },
-  mounted() {
-    let cuisines = [
-      'British', 'Malaysian', 'Indian', 'American', 'Mexican', 'Russian', 'French',
-      'Canadian', 'Jamaican', 'Chinese', 'Italian', 'Dutch', 'Vietnamese', 'Polish',
-      'Irish', 'Croatian', 'Japanese', 'Moroccan', 'Tunisian', 'Turkish',
-      'Greek', 'Egyptian', 'Portuguese', 'Kenyan', 'Thai', 'Spanish',
-    ]
-
-    // https://stackoverflow.com/questions/8495687/split-array-into-chunks
-    let transformedCuisines = [];
-    let chunkSize = 4;
-    for (let i = 0; i < cuisines.length; i += chunkSize) {
-      let chunk = cuisines.slice(i, i + chunkSize);
-      transformedCuisines.push(chunk)
-    }
-    this.cuisines = transformedCuisines;
+  async mounted() {
+    await this.getCuisines();
+    await this.getIngredients();
   },
 }
 </script>
@@ -161,10 +184,6 @@ export default {
     border-radius: 10px;
     width: 80vw;
     margin: 5px;
-  }
-
-  .cuisine-title {
-    padding-left: 10px;
   }
 
   .ingredients-adder {

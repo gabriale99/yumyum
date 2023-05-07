@@ -27,35 +27,41 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import router from '../router';
+import { environment } from '../environments/environment'
 
 export default {
   computed: {
     ...mapStores(useUserStore),
   },
   methods: {
-    login() {
+    async login() {
       let app = this;
-      FB.login(function(response) {
+      let api = environment.yumyumapi;
+
+      await FB.login(async function(response) {
         if (response.authResponse) {
-          app.userStore.setupUser(response.authResponse.userID, response.authResponse.access)
+          app.userStore.setupUser(response.authResponse.userID, response.authResponse.accessToken)
           console.log('Welcome!  Fetching your information.... ');
           FB.api('/me', function(response) {
             console.log('Good to see you, ' + response.name + '.');
           });
-          console.log(app.userStore.userID)
+          // console.log(app.userStore.userID)
+
+          let resp = await axios.get(`${api}user?UserID=${app.userStore.userID}`);
+
+          if (resp.data['isFirstTime']) {
+            router.push('/user')
+          } else {
+            router.push('/')
+          }
         } else {
           console.log('User cancelled login or did not fully authorize.');
         }
       });
-
-      if (false) {
-        router.push('/')
-      } else {
-        router.push('/user')
-      }
     },
     // checkLoginStatus() {
     //   FB.getLoginStatus(function(response) {

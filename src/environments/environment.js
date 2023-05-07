@@ -17,6 +17,6 @@ export const environment = {
   // TODO: The API URL is available in the API Gateway console under Stage
   // NOTE: don't forget trailing "/"  For example:
   // https://api.example.com/prod/
-  yumyumapi: 'https://x5w7nr0vf9.execute-api.us-east-1.amazonaws.com'
+  yumyumapi: 'https://52llie3g66.execute-api.us-west-1.amazonaws.com/dev/'
 
 };

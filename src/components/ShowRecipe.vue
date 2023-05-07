@@ -82,9 +82,12 @@
 </template>
 
 <script>
-import { mapStores } from 'pinia';
+import axios from 'axios'
+import { mapStores, mapState } from 'pinia';
 import { useFeedbackStore } from '../stores/feedback';
+import { useUserStore } from '../stores/user';
 import FeedbackPopup from '../components/FeedbackPopup.vue'
+import { environment } from '../environments/environment'
 
 export default {
   components: {
@@ -95,6 +98,7 @@ export default {
   },
   computed: {
     ...mapStores(useFeedbackStore),
+    ...mapState(useUserStore, ['userID']),
   },
   data() {
     return {
@@ -189,6 +193,18 @@ export default {
       if (!this.favorited)
         this.favorited = true;
     },
+    getRecipe() {
+      let api = environment.yumyumapi;
+      console.log(api)
+
+      let resp = axios.get(`${api}recipe?UserID=${this.userID}`, {
+        headers: {
+          "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+          "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
+        },
+      });
+      console.log(resp);
+    }
   },
   mounted() {
     if (this.recipeID) {
@@ -227,6 +243,8 @@ export default {
         VideoLink: "https://www.facebook.com"
       }
     }
+
+    this.getRecipe();
   },
 }
 </script>
