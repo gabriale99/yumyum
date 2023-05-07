@@ -5,21 +5,27 @@ import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
 import ShowRecipe from '../components/ShowRecipe.vue'
 import ListRecipes from '../components/ListRecipes.vue'
+import YumDashboard from '../components/YumDashboard.vue'
 
 const user = useUserStore();
 
 const { userID, profilePic } = storeToRefs(user);
 
-const showRecipe = ref(true);
+if (!userID.value) {
+  // router.push('/landing');
+}
 
 const router = useRouter();
 
-if (!userID.value) {
-  router.push('/landing');
-}
-
 function toUserPreference() {
   router.push('/user');
+}
+
+const tab = ref('Daily Refresh');
+const tabs = ['Daily Refresh', 'Favorites', 'Analytics']
+
+function changeTab(t) {
+  tab.value = t;
 }
 </script>
 
@@ -29,7 +35,7 @@ function toUserPreference() {
       <span>Yum Yum</span>
       <v-avatar
         class="right-icons profile-pic"
-        size="50px"
+        size="90px"
         @click="toUserPreference"
       >
         <v-img
@@ -40,6 +46,7 @@ function toUserPreference() {
         <v-icon
           v-else
           icon="mdi-account-circle"
+          color="amber-darken-1"
         ></v-icon>
       </v-avatar>
     </div>
@@ -48,16 +55,14 @@ function toUserPreference() {
       bg-color="amber-darken-1"
       class="tabs"
     >
-      <v-tab @click="showRecipe = true">
-        Daily Refresh
-      </v-tab>
-      <v-tab @click="showRecipe = false">
-        Favorites
+      <v-tab v-for="t in tabs" @click="changeTab(t)">
+        {{ t }}
       </v-tab>
     </v-tabs>
     <div class="d-flex main-background justify-center">
-      <ShowRecipe v-if="showRecipe" />
-      <ListRecipes v-else />
+      <ShowRecipe v-if="tab === 'Daily Refresh'" />
+      <ListRecipes v-else-if="tab === 'Favorites'" />
+      <YumDashboard v-else />
     </div>
   </main>
 </template>
@@ -82,5 +87,6 @@ function toUserPreference() {
 
 .profile-pic {
   margin-right: 20px;
+  background-color: black;
 }
 </style>
