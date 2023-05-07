@@ -1,91 +1,39 @@
 <script>
+import axios from 'axios'
+import { mapState } from 'pinia';
+import { useUserStore } from '../stores/user';
 import ShowRecipe from '../components/ShowRecipe.vue'
+import { environment } from '../environments/environment'
 
 export default {
   components: {
     ShowRecipe,
   },
+  computed: {
+    ...mapState(useUserStore, ['userID']),
+  },
   data() {
     return {
-      recipes: [
-        {
-          ID: 1,
-          Name: "Scramble Eggs with Tomato",
-          Region: 'Chinese',
-          TypeOfMeal: 'Dish',
-          Thumbnail: "https://images.food52.com/H9ApwoVc35v_4WzAHX1WYwC286k=/2016x1344/filters:format(webp)/b9564bf8-cf23-484b-82de-f26dffea55a5--2002-6.jpg",
-          Serving: '4 people',
-          CookingTime: '15 minutes',
-          credit: "Gabriel Chung",
-        },
-        {
-          ID: 2,
-          Name: "Scramble Eggs with Seared Spam",
-          Region: 'Chinese',
-          TypeOfMeal: 'Dish',
-          Thumbnail: "https://lh3.googleusercontent.com/6Gigya3mJmGG0GF5HTRXtwbGQ1MQf78Auox8So0Nxc2o5eLjaWrBzUI-PKTiuU7uoftBw3u6wbyoABvFMWSytw=w1280-h1280-c-rj-v1-e365",
-          Serving: '4 people',
-          CookingTime: '15 minutes',
-          credit: "Gabriel Chung",
-        },
-        {
-          ID: 3,
-          Name: "Scramble Eggs x",
-          Region: 'Chinese',
-          TypeOfMeal: 'Dish',
-          Thumbnail: "https://lh3.googleusercontent.com/6Gigya3mJmGG0GF5HTRXtwbGQ1MQf78Auox8So0Nxc2o5eLjaWrBzUI-PKTiuU7uoftBw3u6wbyoABvFMWSytw=w1280-h1280-c-rj-v1-e365",
-          Serving: '4 people',
-          CookingTime: '15 minutes',
-          credit: "Gabriel Chung",
-        },
-        {
-          ID: 3,
-          Name: "Scramble Eggs x",
-          Region: 'Chinese',
-          TypeOfMeal: 'Dish',
-          Thumbnail: "https://lh3.googleusercontent.com/6Gigya3mJmGG0GF5HTRXtwbGQ1MQf78Auox8So0Nxc2o5eLjaWrBzUI-PKTiuU7uoftBw3u6wbyoABvFMWSytw=w1280-h1280-c-rj-v1-e365",
-          Serving: '4 people',
-          CookingTime: '15 minutes',
-          credit: "Gabriel Chung",
-        },
-        {
-          ID: 3,
-          Name: "Scramble Eggs x",
-          Region: 'Chinese',
-          TypeOfMeal: 'Dish',
-          Thumbnail: "https://lh3.googleusercontent.com/6Gigya3mJmGG0GF5HTRXtwbGQ1MQf78Auox8So0Nxc2o5eLjaWrBzUI-PKTiuU7uoftBw3u6wbyoABvFMWSytw=w1280-h1280-c-rj-v1-e365",
-          Serving: '4 people',
-          CookingTime: '15 minutes',
-          credit: "Gabriel Chung",
-        },
-        {
-          ID: 3,
-          Name: "Scramble Eggs x",
-          Region: 'Chinese',
-          TypeOfMeal: 'Dish',
-          Thumbnail: "https://lh3.googleusercontent.com/6Gigya3mJmGG0GF5HTRXtwbGQ1MQf78Auox8So0Nxc2o5eLjaWrBzUI-PKTiuU7uoftBw3u6wbyoABvFMWSytw=w1280-h1280-c-rj-v1-e365",
-          Serving: '4 people',
-          CookingTime: '15 minutes',
-          credit: "Gabriel Chung",
-        },
-        {
-          ID: 3,
-          Name: "Scramble Eggs x",
-          Region: 'Chinese',
-          TypeOfMeal: 'Dish',
-          Thumbnail: "https://lh3.googleusercontent.com/6Gigya3mJmGG0GF5HTRXtwbGQ1MQf78Auox8So0Nxc2o5eLjaWrBzUI-PKTiuU7uoftBw3u6wbyoABvFMWSytw=w1280-h1280-c-rj-v1-e365",
-          Serving: '4 people',
-          CookingTime: '15 minutes',
-          credit: "Gabriel Chung",
-        }
-      ],
+      recipes: [],
       selectedRecipe: null,
     }
   },
   methods: {
     selectRecipe(id) {
       this.selectedRecipe = id;
-    }
+    },
+    async getFavoriteRecipes() {
+      let api = environment.yumyumapi;
+      api = `${api}favorite?UserID=${this.userID}`
+
+      let resp = await axios.get(api);
+      // console.log(resp);
+      
+      this.recipes = resp.data;
+    },
+  },
+  async mounted() {
+    await this.getFavoriteRecipes();
   },
 }
 </script>
@@ -122,7 +70,7 @@ export default {
 <style scoped>
 .recipes-container {
   padding: 5px;
-  height: inherit;
+  height: 85vh;
 }
 
 .recipes{
@@ -135,5 +83,6 @@ export default {
   background-color:burlywood;
   min-width: 30%;
   max-width: 50%;
+  height: 42%;
 }
 </style>

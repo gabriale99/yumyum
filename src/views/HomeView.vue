@@ -8,7 +8,7 @@ import ListRecipes from '../components/ListRecipes.vue'
 
 const user = useUserStore();
 
-const { userID } = storeToRefs(user);
+const { userID, profilePic } = storeToRefs(user);
 
 const showRecipe = ref(true);
 
@@ -17,12 +17,31 @@ const router = useRouter();
 if (!userID.value) {
   router.push('/landing');
 }
+
+function toUserPreference() {
+  router.push('/user');
+}
 </script>
 
 <template>
   <main>
-    <div class="d-flex align-center text-h1 flex-column banner">
+    <div class="d-flex justify-center align-center text-h1 flex-row banner">
       <span>Yum Yum</span>
+      <v-avatar
+        class="right-icons profile-pic"
+        size="50px"
+        @click="toUserPreference"
+      >
+        <v-img
+          v-if="profilePic"
+          alt="Avatar"
+          :src="profilePic"
+        ></v-img>
+        <v-icon
+          v-else
+          icon="mdi-account-circle"
+        ></v-icon>
+      </v-avatar>
     </div>
     <v-tabs
       fixed-tabs
@@ -59,5 +78,9 @@ if (!userID.value) {
 
 .tabs {
   z-index: 200;
+}
+
+.profile-pic {
+  margin-right: 20px;
 }
 </style>

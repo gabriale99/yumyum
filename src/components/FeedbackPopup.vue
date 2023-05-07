@@ -63,7 +63,7 @@ export default {
         Category: this.type,
         RecipeID: this.type === 'Recipe'? this.recipeID : null
       }
-      console.log(params);
+      // console.log(params);
 
       let resp = await axios.put(`${api}feedback`, params);
 

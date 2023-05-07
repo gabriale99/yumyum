@@ -28,8 +28,8 @@
             <v-col class="d-flex flex-row align-center">
               <span class="text-h6">Vegetarian?</span>
               <v-radio-group v-model="vegetarian" inline color="green" hide-details>
-                <v-radio label="True" :value="true"></v-radio>
-                <v-radio label="False" :value="false"></v-radio>
+                <v-radio label="Yes" :value="true"></v-radio>
+                <v-radio label="No" :value="false"></v-radio>
               </v-radio-group>
             </v-col>
           </v-row>
@@ -143,6 +143,20 @@ export default {
         this.ingredients = resp['data']['ingredients'];
       }
     },
+    async getUserData() {
+      let api = environment.yumyumapi;
+
+      let resp = await axios.get(`${api}user?UserID=${this.userID}`);
+
+      if (resp.status === 200 && !resp['data']['isFirstTime']) {
+        let data = resp['data'];
+        if (!data['isFirstTime']) {
+          this.insertedIngredients = data['Ingredients'];
+          this.selectedCuisines = data['Preferences'];
+          this.vegetarian = data['Vegetarian'];
+        }
+      }
+    },
     async submitPreferences() {
       if (!this.selectedCuisines.length) {
         // warning
@@ -150,7 +164,7 @@ export default {
       }
 
       let api = environment.yumyumapi;
-      console.log(api)
+      // console.log(api)
 
       let params = {
         UserID: this.userID,
@@ -171,8 +185,12 @@ export default {
     }
   },
   async mounted() {
+    if (!this.userID) {
+      router.push('/landing')
+    }
     await this.getCuisines();
     await this.getIngredients();
+    await this.getUserData();
   },
 }
 </script>

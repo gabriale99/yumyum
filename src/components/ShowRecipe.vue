@@ -37,14 +37,20 @@
       <v-col>
         <div class="d-flex flex-row justify-center text-h5">
           {{ recipe.Region }} | {{ recipe.TypeOfMeal }} | {{ recipe.Serving }}
-          <span v-if="recipe.Credit">&nbsp;|<a :href="recipe.Credit">&nbsp;Credit</a>&nbsp;|&nbsp;</span>
-          <a v-if="recipe.VideoLink" :href="recipe.VideoLink">Video Tutotial</a>
+          <span v-if="recipe.Credit">&nbsp;|<a :href="recipe.Credit" target="_blank">&nbsp;Credit</a>&nbsp;|&nbsp;</span>
+          <a v-if="recipe.VideoLink" :href="recipe.VideoLink" target="_blank">Video Tutotial</a>
         </div>
       </v-col>
     </v-row>
     <v-row>
-      <v-col lg="3" ms="3" sm="12">
+      <v-col lg="4" ms="4" sm="12">
         <div class="d-flex flex-column i-container">
+          <v-img
+            v-if="!!recipe.Thumbnail"
+            :src="recipe.Thumbnail"
+            height="300px"
+            cover
+          ></v-img>
           <div class="d-flex text-h3 justify-center i-title">Ingredients</div>
             <v-table density="compact" class="instructions ">
               <tbody>
@@ -103,148 +109,47 @@ export default {
   data() {
     return {
       favorited: false,
-      recipe: {
-        ID: 1,
-        Name: "Beef Stew",
-        Region: "Chinese",
-        TypeOfMeal: "Main dish",
-        Thumbnail: null,
-        Serving: "3 people",
-        CookingTime: "30 minutes",
-        Ingredients: [
-          {
-            Name: "Beef",
-            Portion: "4 pounds"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-        ],
-        Instructions: [
-          "This is the first step",
-          "This is the second step",
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est labore voluptatibus! Eaque cupiditate minima, at placeat totam, magni doloremque veniam neque porro libero rerum unde voluptatem!",
-          "This is the second step",
-          "This is the final step",
-          "This is the final step",
-          "This is the final step",
-          "This is the final step",
-          "This is the final step",
-          "This is the final step",
-          "This is the final step",
-          "This is the final step",
-        ],
-        Credit: "https://www.youtube.com",
-        VideoLink: "https://www.facebook.com"
-      }
+      recipe: {}
     }
   },
   methods: {
-    favoriteRecipe() {
-      if (!this.favorited)
-        this.favorited = true;
-    },
-    getRecipe() {
+    async favoriteRecipe() {
+      if (this.favorited) {
+        return;
+      }
+        
       let api = environment.yumyumapi;
-      console.log(api)
 
-      let resp = axios.get(`${api}recipe?UserID=${this.userID}`, {
-        headers: {
-          "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
-          "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
-        },
-      });
-      console.log(resp);
-    }
-  },
-  mounted() {
-    if (this.recipeID) {
-      this.recipe = {
-        ID: 1,
-        Name: "Beef Stew 2",
-        Region: "Chinese",
-        TypeOfMeal: "Main dish",
-        Thumbnail: null,
-        Serving: "4 people",
-        CookingTime: "20 minutes",
-        Ingredients: [
-          {
-            Name: "Beef",
-            Portion: "4 pounds"
-          },
-          {
-            Name: "Carrot",
-            Portion: "3"
-          },
-        ],
-        Instructions: [
-          "This is the first step",
-          "This is the second step",
-          "This is the second step",
-          "This is the second step",
-          "This is the second step",
-          "This is the second step",
-          "This is the second step",
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est labore voluptatibus! Eaque cupiditate minima, at placeat totam, magni doloremque veniam neque porro libero rerum unde voluptatem!",
-          "This is the final step",
-          "This is the final step",
-          "This is the final step",
-        ],
-        Credit: "https://www.youtube.com",
-        VideoLink: "https://www.facebook.com"
+      let params = {
+        UserID: this.userID,
+        ID: this.recipe.ID
+      };
+
+      let resp = await axios.put(`${api}favorite`, params);
+      
+      if (resp.status === 200) {
+        // console.log(resp.data);
+        this.favorited = true;
+      }
+    },
+    async getRecipe(recipeID) {
+      let api = environment.yumyumapi;
+      api = `${api}recipe?UserID=${this.userID}`
+      if (recipeID) {
+        api = `${api}&RecipeID=${recipeID}`
+      }
+
+      let resp = await axios.get(api);
+      // console.log(resp);
+      
+      if (resp.status === 200) {
+        this.recipe = resp.data['recipe'];
+        this.favorited = resp.data['favorited'];
       }
     }
-
-    this.getRecipe();
+  },
+  async mounted() {
+    await this.getRecipe(this.recipeID);
   },
 }
 </script>
@@ -276,11 +181,5 @@ export default {
     margin-left: 10px;
     position: absolute;
     left: 0;
-  }
-
-  .right-icons {
-    margin-left: 10px;
-    position: absolute;
-    right: 0;
   }
 </style>

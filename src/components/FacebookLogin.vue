@@ -38,41 +38,65 @@ export default {
     ...mapStores(useUserStore),
   },
   methods: {
-    async login() {
+    login() {
       let app = this;
       let api = environment.yumyumapi;
 
-      await FB.login(async function(response) {
+      FB.login(function(response) {
         if (response.authResponse) {
           app.userStore.setupUser(response.authResponse.userID, response.authResponse.accessToken)
           console.log('Welcome!  Fetching your information.... ');
           FB.api('/me', function(response) {
+            // console.log(response)
             console.log('Good to see you, ' + response.name + '.');
           });
-          // console.log(app.userStore.userID)
+          
+          FB.api('/me/picture', 'GET', {
+            "redirect": false,
+            "type": "small",
+            "access_token": app.userStore.accessToken
+          }, function(response) {
+            // console.log(app.userStore.accessToken)
+            app.userStore.storeProfilePic(response.data.url);
+            // app.userStore.storeProfilePic(response)
+            // console.log(app.userStore.profilePic)
+          });
 
-          let resp = await axios.get(`${api}user?UserID=${app.userStore.userID}`);
+          axios.get(`${api}user?UserID=${app.userStore.userID}`)
+          .then(resp => {
+            if (resp.data['isFirstTime']) {
+              router.push('/user')
+            } else {
+              router.push('/')
+            }
+          });
 
-          if (resp.data['isFirstTime']) {
-            router.push('/user')
-          } else {
-            router.push('/')
-          }
         } else {
           console.log('User cancelled login or did not fully authorize.');
         }
       });
     },
-    // checkLoginStatus() {
-    //   FB.getLoginStatus(function(response) {
-    //     console.log(response.userID)
-    //   });
-    // }
   },
   mounted() {
-    if (this.userID) {
-      router.push('/')
-    }
+    let app = this;
+    FB.getLoginStatus(function(response) {
+      // console.log(response)
+      if (response.status === 'connected') {
+        var uid = response.authResponse.userID;
+        var accessToken = response.authResponse.accessToken;
+        app.userStore.setupUser(uid, accessToken)
+        FB.api('/me/picture', 'GET', {
+          "redirect": false,
+          "type": "small",
+          "access_token": app.userStore.accessToken
+        }, function(response) {
+          // console.log(app.userStore.accessToken)
+          app.userStore.storeProfilePic(response.data.url);
+          router.push('/');
+        });
+        
+      }
+    });
   },
 }
 </script>
