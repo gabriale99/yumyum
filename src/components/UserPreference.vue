@@ -117,30 +117,27 @@ export default {
       this.ingredient = null;
     },
     async getCuisines() {
-      let api = environment.yumyumapi;
+      let cuisines = await this.getResource('region');
 
-      let resp = await axios.get(`${api}region`);
-
-      if (resp.status === 200) {
-        let cuisines = resp['data']['regions'];
-
-        // https://stackoverflow.com/questions/8495687/split-array-into-chunks
-        let transformedCuisines = [];
-        let chunkSize = 4;
-        for (let i = 0; i < cuisines.length; i += chunkSize) {
-          let chunk = cuisines.slice(i, i + chunkSize);
-          transformedCuisines.push(chunk)
-        }
-        this.cuisines = transformedCuisines;
+      // https://stackoverflow.com/questions/8495687/split-array-into-chunks
+      let transformedCuisines = [];
+      let chunkSize = 4;
+      for (let i = 0; i < cuisines.length; i += chunkSize) {
+        let chunk = cuisines.slice(i, i + chunkSize);
+        transformedCuisines.push(chunk)
       }
+      this.cuisines = transformedCuisines;
     },
     async getIngredients() {
+      this.ingredients = await this.getResource('ingredient');
+    },
+    async getResource(table) {
       let api = environment.yumyumapi;
 
-      let resp = await axios.get(`${api}ingredient`);
+      let resp = await axios.get(`${api}resource?table=${table}`);
 
       if (resp.status === 200) {
-        this.ingredients = resp['data']['ingredients'];
+        return resp['data']['output'];
       }
     },
     async getUserData() {
