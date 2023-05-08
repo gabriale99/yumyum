@@ -11,11 +11,11 @@ const user = useUserStore();
 
 const { userID, profilePic } = storeToRefs(user);
 
+const router = useRouter();
+
 if (!userID.value) {
   router.push('/landing');
 }
-
-const router = useRouter();
 
 function toUserPreference() {
   router.push('/user');
