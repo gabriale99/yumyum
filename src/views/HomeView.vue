@@ -14,7 +14,7 @@ const { userID, profilePic } = storeToRefs(user);
 const router = useRouter();
 
 if (!userID.value) {
-  router.push('/landing');
+  router.push('/');
 }
 
 function toUserPreference() {

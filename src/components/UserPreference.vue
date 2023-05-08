@@ -176,14 +176,14 @@ export default {
 
       if (resp.status === 200) {
         // console.log(resp.data['message']);
-        router.push('/')
+        router.push('/home')
       }
 
     }
   },
   async mounted() {
     if (!this.userID) {
-      router.push('/landing')
+      router.push('/')
     }
     await this.getCuisines();
     await this.getIngredients();

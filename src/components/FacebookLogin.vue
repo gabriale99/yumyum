@@ -67,7 +67,7 @@ export default {
             if (resp.data['isFirstTime']) {
               router.push('/user')
             } else {
-              router.push('/')
+              router.push('/home')
             }
           });
 
@@ -92,7 +92,7 @@ export default {
         }, function(response) {
           // console.log(app.userStore.accessToken)
           app.userStore.storeProfilePic(response.data.url);
-          router.push('/');
+          router.push('/home');
         });
         
       }
