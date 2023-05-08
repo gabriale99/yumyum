@@ -12,7 +12,7 @@ const user = useUserStore();
 const { userID, profilePic } = storeToRefs(user);
 
 if (!userID.value) {
-  // router.push('/landing');
+  router.push('/landing');
 }
 
 const router = useRouter();
