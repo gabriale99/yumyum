@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
+import { useTabStore } from '../stores/tabs';
 import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
 import ShowRecipe from '../components/ShowRecipe.vue'
@@ -8,7 +9,6 @@ import ListRecipes from '../components/ListRecipes.vue'
 import YumDashboard from '../components/YumDashboard.vue'
 
 const user = useUserStore();
-
 const { userID, profilePic } = storeToRefs(user);
 
 const router = useRouter();
@@ -21,12 +21,9 @@ function toUserPreference() {
   router.push('/user');
 }
 
-const tab = ref('Daily Refresh');
-const tabs = ['Daily Refresh', 'Favorites', 'Analytics']
-
-function changeTab(t) {
-  tab.value = t;
-}
+const tabStore = useTabStore();
+const { tabs, currentTab } = storeToRefs(tabStore);
+const tab = currentTab.value? ref(currentTab.value) : ref(0)
 </script>
 
 <template>
@@ -54,14 +51,15 @@ function changeTab(t) {
       fixed-tabs
       bg-color="amber-darken-1"
       class="tabs"
+      v-model="tab"
     >
-      <v-tab v-for="t in tabs" @click="changeTab(t)">
+      <v-tab v-for="t, i in tabs" @click="tabStore.changeTab(i)">
         {{ t }}
       </v-tab>
     </v-tabs>
     <div class="d-flex main-background justify-center">
-      <ShowRecipe v-if="tab === 'Daily Refresh'" />
-      <ListRecipes v-else-if="tab === 'Favorites'" />
+      <ShowRecipe v-if="tab === 0" />
+      <ListRecipes v-else-if="tab === 1" />
       <YumDashboard v-else />
     </div>
   </main>

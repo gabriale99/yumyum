@@ -6,6 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+*__pycache__*
+*.coverage
+*/htmlcov
 
 node_modules
 .DS_Store
@@ -30,3 +33,6 @@ coverage
 # large .csv
 meals.csv
 transformed_meals.csv
+
+# local dynamodb app
+dynamodb_local_latest/

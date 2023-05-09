@@ -1,4 +1,5 @@
 <template>
+  <LoadingScreen v-if="loadingStore.isLoading" h="100vh" w="100vw"/>
   <v-container class="d-flex justify-center align-center flex-column main-background">
     <span class="text-h2 pref-title">Yum Yum</span>
     <div class="pref-container">
@@ -72,6 +73,9 @@
 
           <v-row>
             <v-col>
+              <v-btn color="rgb(250, 207, 142)" @click="returnToHome" style="margin-right: 10px;">
+                Cancel 
+              </v-btn>
               <v-btn color="rgb(250, 207, 142)" @click="submitPreferences">
                 Submit Information
               </v-btn>
@@ -85,13 +89,22 @@
 
 <script>
 import axios from 'axios';
-import colors from 'vuetify/lib/util/colors'
-import { mapState } from 'pinia';
-import { useUserStore } from '../stores/user';
 import router from '../router';
+import colors from 'vuetify/lib/util/colors'
+import { mapState, mapStores } from 'pinia';
+import { useLoadingStore } from '../stores/loading';
+import { useUserStore } from '../stores/user';
 import { environment } from '../environments/environment'
+import LoadingScreen from './LoadingScreen.vue'
 
 export default {
+  components: {
+    LoadingScreen,
+  },
+  computed: {
+    ...mapStores(useLoadingStore),
+    ...mapState(useUserStore, ["userID"]),
+  },
   data() {
     return {
       chipColor: colors.black,
@@ -102,93 +115,89 @@ export default {
       insertedIngredients: [],
       selectedCuisines: [],
       vegetarian: false,
-    }
-  },
-  computed: {
-    ...mapState(useUserStore, ['userID']),
+    };
   },
   methods: {
     addIngredient() {
       if (!this.ingredient) {
-        return;
+          return;
       }
-
       this.insertedIngredients.push(this.ingredient);
       this.ingredient = null;
     },
     async getCuisines() {
-      let cuisines = await this.getResource('region');
-
+      let cuisines = await this.getResource("region");
       // https://stackoverflow.com/questions/8495687/split-array-into-chunks
       let transformedCuisines = [];
       let chunkSize = 4;
       for (let i = 0; i < cuisines.length; i += chunkSize) {
         let chunk = cuisines.slice(i, i + chunkSize);
-        transformedCuisines.push(chunk)
+        transformedCuisines.push(chunk);
       }
       this.cuisines = transformedCuisines;
     },
     async getIngredients() {
-      this.ingredients = await this.getResource('ingredient');
+      this.ingredients = await this.getResource("ingredient");
     },
     async getResource(table) {
       let api = environment.yumyumapi;
-
       let resp = await axios.get(`${api}resource?table=${table}`);
-
       if (resp.status === 200) {
-        return resp['data']['output'];
+        return resp["data"]["output"];
       }
     },
     async getUserData() {
       let api = environment.yumyumapi;
-
       let resp = await axios.get(`${api}user?UserID=${this.userID}`);
-
-      if (resp.status === 200 && !resp['data']['isFirstTime']) {
-        let data = resp['data'];
-        if (!data['isFirstTime']) {
-          this.insertedIngredients = data['Ingredients'];
-          this.selectedCuisines = data['Preferences'];
-          this.vegetarian = data['Vegetarian'];
+      if (resp.status === 200 && !resp["data"]["isFirstTime"]) {
+        let data = resp["data"];
+        if (!data["isFirstTime"]) {
+            this.insertedIngredients = data["Ingredients"];
+            this.selectedCuisines = data["Preferences"];
+            this.vegetarian = data["Vegetarian"];
         }
       }
+    },
+    async loadContents() {
+      this.loadingStore.changeLoadingStatus(true);
+      await this.getCuisines();
+      await this.getIngredients();
+      await this.getUserData();
+      this.loadingStore.changeLoadingStatus(false);
+    },
+    returnToHome() {
+        router.push("/home");
     },
     async submitPreferences() {
       if (!this.selectedCuisines.length) {
         // warning
         return;
       }
-
+      this.loadingStore.changeLoadingStatus(true);
       let api = environment.yumyumapi;
       // console.log(api)
-
       let params = {
         UserID: this.userID,
         Ingredients: this.insertedIngredients,
         Preferences: this.selectedCuisines,
         Vegetarian: this.vegetarian,
-      }
-
+      };
       // console.log(params);
-
       let resp = await axios.put(`${api}user`, params);
-
       if (resp.status === 200) {
         // console.log(resp.data['message']);
-        router.push('/home')
+        router.push("/home");
       }
-
+      this.loadingStore.changeLoadingStatus(false);
     }
   },
   async mounted() {
     if (!this.userID) {
-      router.push('/')
+      router.push("/");
     }
-    await this.getCuisines();
-    await this.getIngredients();
-    await this.getUserData();
+    await this.loadContents();
   },
+  components: { LoadingScreen }
 }
 </script>
 

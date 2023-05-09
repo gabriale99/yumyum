@@ -3,21 +3,22 @@
     :recipeID="recipe.ID"
   />
 
+  <LoadingScreen v-if="loadingStore.isLoading" h="85vh" w="100vw"/>
   <div class="d-flex flex-column recipe-overlay">
     <v-row>
       <v-col cols="12">
         <div class="d-flex flex-row justify-center align-center">
           <v-btn
-            v-show="!!recipeID"
+            v-show="!!recipeToShow"
             class="ma-2 return-icon"
             color="blue"
             icon="mdi-arrow-u-left-top"
-            @click="$emit('returnToList')"
+            @click="selectRecipe(null)"
           ></v-btn>
           <div class="d-flex justify-center text-h2">{{ recipe.Name }}</div>
           <div class="right-icons">
             <v-btn
-              v-show="!recipeID"
+              v-show="!recipeToShow"
               class="ma-2"
               :color="!favorited? 'indigo' : 'red'"
               icon="mdi-heart-circle"
@@ -89,30 +90,37 @@
 
 <script>
 import axios from 'axios'
-import { mapStores, mapState } from 'pinia';
+import { mapStores, mapState, mapActions } from 'pinia';
 import { useFeedbackStore } from '../stores/feedback';
+import { useLoadingStore } from '../stores/loading';
+import { useRecipeStore } from '../stores/recipe';
+import { useTabStore } from '../stores/tabs';
 import { useUserStore } from '../stores/user';
-import FeedbackPopup from '../components/FeedbackPopup.vue'
 import { environment } from '../environments/environment'
+import FeedbackPopup from './FeedbackPopup.vue'
+import LoadingScreen from './LoadingScreen.vue'
 
 export default {
   components: {
     FeedbackPopup,
-  },
-  props: {
-    recipeID: Number,
+    LoadingScreen,
   },
   computed: {
     ...mapStores(useFeedbackStore),
+    ...mapStores(useLoadingStore),
+    ...mapStores(useRecipeStore),
+    ...mapState(useTabStore, ['recipeToShow']),
     ...mapState(useUserStore, ['userID']),
   },
   data() {
     return {
       favorited: false,
+      isLoading: false,
       recipe: {}
     }
   },
   methods: {
+    ...mapActions(useTabStore, ['selectRecipe']),
     async favoriteRecipe() {
       if (this.favorited) {
         return;
@@ -130,13 +138,21 @@ export default {
       if (resp.status === 200) {
         // console.log(resp.data);
         this.favorited = true;
+        this.recipeStore.setFavorited(true);
       }
     },
-    async getRecipe(recipeID) {
+    async getRecipe() {
+      if (!!this.recipeStore.recipe && !this.recipeToShow) {
+        this.recipe = this.recipeStore.dailyRecipe
+        this.favorited = this.recipeStore.dailyFavorite
+        return;
+      }
+      this.loadingStore.changeLoadingStatus(true);
+
       let api = environment.yumyumapi;
       api = `${api}recipe?UserID=${this.userID}`
-      if (recipeID) {
-        api = `${api}&RecipeID=${recipeID}`
+      if (this.recipeToShow) {
+        api = `${api}&RecipeID=${this.recipeToShow}`
       }
 
       let resp = await axios.get(api);
@@ -145,11 +161,17 @@ export default {
       if (resp.status === 200) {
         this.recipe = resp.data['recipe'];
         this.favorited = resp.data['favorited'];
+        if (!this.recipeToShow) {
+          this.recipeStore.setRecipe(this.recipe);
+          this.recipeStore.setFavorited(this.favorited);
+        }
       }
+
+      this.loadingStore.changeLoadingStatus(false);
     }
   },
   async mounted() {
-    await this.getRecipe(this.recipeID);
+    await this.getRecipe();
   },
 }
 </script>

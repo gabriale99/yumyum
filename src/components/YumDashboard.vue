@@ -1,4 +1,5 @@
 <template>
+  <LoadingScreen v-if="loadingStore.isLoading" h="85vh" w="100vw"/>
   <div class="d-flex align-center overlay">
     <Bar
       v-if="showChart"
@@ -11,22 +12,34 @@
 
 <script>
 import axios from 'axios';
-// import { mapState } from 'pinia';
+import { mapStores } from 'pinia';
 import { Bar } from 'vue-chartjs'
+import { useLoadingStore } from '../stores/loading';
 import { environment } from '../environments/environment'
+import LoadingScreen from './LoadingScreen.vue'
 
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 export default {
-  components: { Bar },
-  // computed: {
-  //   ...mapState(useUserStore, ['userID']),
-  // },
+  components: {
+    Bar,
+    LoadingScreen,
+  },
+  computed: {
+    ...mapStores(useLoadingStore),
+  },
   data() {
     return {
-      chartData: null,
+      chartData: {
+        'label': [],
+        'datasets': [
+          {
+            data: [],
+          }
+        ]
+      },
       chartOptions: {
         plugins: {
             title: {
@@ -45,12 +58,13 @@ export default {
           }
         }
       },
-      showChart: false,
+      showChart: true,
     }
   },
   methods: {
     async getAnalytic(resource) {
-      this.showChart = false;
+      // this.showChart = false;
+      this.loadingStore.changeLoadingStatus(true);
       let api = environment.yumyumapi;
 
       let resp = await axios.get(`${api}analytic/${resource}`);
@@ -72,8 +86,9 @@ export default {
         // this.chartData['datasets'] = [ { data: Object.values(resp['data']) } ];
         // console.log(this.chartData['labels'])
         // console.log(this.chartData['datasets'][0])
-        this.showChart = true;
+        // this.showChart = true;
       }
+      this.loadingStore.changeLoadingStatus(false);
     }
   },
   async mounted() {

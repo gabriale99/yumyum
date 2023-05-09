@@ -1,45 +1,9 @@
-<script>
-import axios from 'axios'
-import { mapState } from 'pinia';
-import { useUserStore } from '../stores/user';
-import ShowRecipe from '../components/ShowRecipe.vue'
-import { environment } from '../environments/environment'
-
-export default {
-  components: {
-    ShowRecipe,
-  },
-  computed: {
-    ...mapState(useUserStore, ['userID']),
-  },
-  data() {
-    return {
-      recipes: [],
-      selectedRecipe: null,
-    }
-  },
-  methods: {
-    selectRecipe(id) {
-      this.selectedRecipe = id;
-    },
-    async getFavoriteRecipes() {
-      let api = environment.yumyumapi;
-      api = `${api}favorite?UserID=${this.userID}`
-
-      let resp = await axios.get(api);
-      // console.log(resp);
-      
-      this.recipes = resp.data;
-    },
-  },
-  async mounted() {
-    await this.getFavoriteRecipes();
-  },
-}
-</script>
-
 <template>
-  <v-row class="recipes-container" v-if="!selectedRecipe">
+  <LoadingScreen v-if="loadingStore.isLoading" h="85vh" w="100vw"/>
+  <v-row
+    v-if="!tabStore.recipeToShow"
+    class="recipes-container"
+  >
     <v-col class="d-flex flex-row justify-center flex-wrap recipes">
       <v-card
         v-for="r in recipes"
@@ -64,8 +28,57 @@ export default {
       </v-card>
     </v-col>
   </v-row>
-  <ShowRecipe :recipeID="selectedRecipe" @returnToList="selectedRecipe=null" v-else />
+  <ShowRecipe
+    v-else
+  />
 </template>
+
+<script>
+import axios from 'axios'
+import { mapState, mapStores } from 'pinia';
+import { useLoadingStore } from '../stores/loading';
+import { useTabStore } from '../stores/tabs';
+import { useUserStore } from '../stores/user';
+import { environment } from '../environments/environment'
+import LoadingScreen from './LoadingScreen.vue'
+import ShowRecipe from './ShowRecipe.vue'
+
+export default {
+  components: {
+    ShowRecipe,
+    LoadingScreen,
+  },  
+  computed: {
+    ...mapStores(useLoadingStore),
+    ...mapStores(useTabStore),
+    ...mapState(useUserStore, ['userID']),
+  },  
+  data() {
+    return {
+      recipes: [],
+    }  
+  },  
+  methods: {
+    selectRecipe(id) {
+      this.tabStore.selectRecipe(id);
+    },
+    async getFavoriteRecipes() {
+      this.loadingStore.changeLoadingStatus(true);
+      let api = environment.yumyumapi;
+      api = `${api}favorite?UserID=${this.userID}`
+
+      let resp = await axios.get(api);
+      // console.log(resp);
+      
+      this.recipes = resp.data;
+      this.loadingStore.changeLoadingStatus(false);
+    },
+  },  
+  async mounted() {
+    await this.getFavoriteRecipes();
+  },    
+}
+</script>
 
 <style scoped>
 .recipes-container {

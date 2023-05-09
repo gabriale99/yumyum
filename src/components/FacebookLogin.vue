@@ -1,4 +1,5 @@
 <template>
+  <LoadingScreen v-if="loadingStore.isLoading" h="100vh" w="100vw"/>
   <v-container class="main-background">
     <div class="d-flex justify-center align-center flex-column login-overlay">
       <v-row class="d-flex justify-center align-center">
@@ -28,20 +29,26 @@
 
 <script>
 import axios from 'axios';
-import { mapStores } from 'pinia';
-import { useUserStore } from '../stores/user';
 import router from '../router';
+import { mapStores, mapActions } from 'pinia';
+import { useLoadingStore } from '../stores/loading';
+import { useUserStore } from '../stores/user';
 import { environment } from '../environments/environment'
+import LoadingScreen from './LoadingScreen.vue'
 
 export default {
+  components: {
+    LoadingScreen,
+  },
   computed: {
+    ...mapStores(useLoadingStore),
     ...mapStores(useUserStore),
   },
   methods: {
     login() {
       let app = this;
       let api = environment.yumyumapi;
-
+      this.loadingStore.changeLoadingStatus(true);
       FB.login(function(response) {
         if (response.authResponse) {
           app.userStore.setupUser(response.authResponse.userID, response.authResponse.accessToken)
@@ -74,6 +81,7 @@ export default {
         } else {
           console.log('User cancelled login or did not fully authorize.');
         }
+        app.loadingStore.changeLoadingStatus(false);
       });
     },
   },

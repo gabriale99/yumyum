@@ -5,7 +5,7 @@ export const useUserStore = defineStore("user", {
   state: () => ({
     accessToken: null,
     profilePic: null,
-    userID: null,
+    userID: '10219328332312730',
   }),
   actions: {
     setupUser(userID, accessToken) {
