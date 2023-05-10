@@ -1,8 +1,20 @@
 <template>
   <LoadingScreen v-if="loadingStore.isLoading" h="85vh" w="100vw"/>
-  <div class="d-flex align-center overlay">
+  <div class="d-flex flex-column align-center overlay">
+    <div class="d-flex flex-row justify-space-around align-center" style="width: 50vw; max-height: 5vh;">
+      <v-radio-group inline v-model="resource" hide-details>
+        <v-radio label="Cuisine Preferenec" value="cuisine"></v-radio>
+        <v-radio label="Favorite Recipe" value="favorite"></v-radio>
+      </v-radio-group>
+      <v-select
+        density="compact"
+        hide-details
+        v-if="resource === 'favorite'"
+        v-model="category"
+        :items="categories"
+      ></v-select>
+    </div>
     <Bar
-      v-if="showChart"
       :options="chartOptions"
       :data="chartData"
       ref="bar"
@@ -30,8 +42,22 @@ export default {
   computed: {
     ...mapStores(useLoadingStore),
   },
+  watch: {
+    resource: async function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        await this.getAnalytic();
+      }
+    },
+    category: function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.transformTop10FavoriteRecipe();
+      }
+    },
+  },
   data() {
     return {
+      categories: ['CookingTime', 'Serving', 'Region', 'TypeOfMeal'],
+      category: 'CookingTime',
       chartData: {
         'label': [],
         'datasets': [
@@ -44,55 +70,88 @@ export default {
         plugins: {
             title: {
                 display: true,
-                text: 'Top 10 Cuisines preferred by users'
+                text: ''
             },
         },
         scales: {
           y: {
-            min: 0,
-            max: 5,
             ticks: {
-              // forces step size to be 50 units
               stepSize: 1
             }
           }
         }
       },
-      showChart: true,
+      favoriteRecipeData: null,
+      resource: 'cuisine',
     }
   },
   methods: {
-    async getAnalytic(resource) {
-      // this.showChart = false;
+    async getAnalytic() {
       this.loadingStore.changeLoadingStatus(true);
       let api = environment.yumyumapi;
-
-      let resp = await axios.get(`${api}analytic/${resource}`);
+      let resp = await axios.get(`${api}analytic/${this.resource}`);
 
       if (resp.status === 200) {
-        // console.log(resp);
-        this.chartData = {
-          'labels': Object.keys(resp['data']),
-          'datasets': [{
-            label: '',
-            data: Object.values(resp['data']),
-            backgroundColor: [
-              'rgba(99, 132, 255)',
-            ],
-            'xAxisID': 'Cuisine'
-          }]
+        let respData = resp['data']
+        if (this.resource === 'cuisine') {
+          this.transformTop10Cuisine(respData);
+        } else {
+          this.favoriteRecipeData = respData;
+          this.transformTop10FavoriteRecipe();
         }
-        // this.chartData['labels'] = Object.keys(resp['data']);
-        // this.chartData['datasets'] = [ { data: Object.values(resp['data']) } ];
-        // console.log(this.chartData['labels'])
-        // console.log(this.chartData['datasets'][0])
-        // this.showChart = true;
       }
       this.loadingStore.changeLoadingStatus(false);
-    }
+    },
+    transformTop10Cuisine(resp) {
+      this.chartData = {
+        'labels': Object.keys(resp),
+        'datasets': [{
+          label: '',
+          data: Object.values(resp),
+          backgroundColor: [
+            'rgba(99, 132, 255)',
+          ],
+        }]
+      }
+
+      this.chartOptions['plugins']['title']['text'] = 'Top 10 Cuisines preferred by users';
+    },
+    transformTop10FavoriteRecipe() {
+      let orders = {};
+      let cat = this.category;
+      for (let r of this.favoriteRecipeData) {
+        if (!orders[r[cat]]) {
+          orders[r[cat]] = r['Count']
+        } else {
+          orders[r[cat]] += r['Count']
+        }
+      }
+
+      orders = Object.keys(orders).map(x => {
+        return {'label': x, 'value': orders[x]}
+      });
+      orders.sort((x, y) => y['value']- x['value']);
+
+      orders.slice(10);
+      let labels = orders.map(x => x['label']);
+      let data = orders.map(x => x['value']);
+
+      this.chartData = {
+        'labels': labels,
+        'datasets': [{
+          label: '',
+          data: data,
+          backgroundColor: [
+            'rgba(99, 132, 255)',
+          ],
+        }]
+      }
+
+      this.chartOptions['plugins']['title']['text'] = `Top ${this.category} by favorite recipes`;
+    },
   },
   async mounted() {
-    await this.getAnalytic('cuisine');
+    await this.getAnalytic();
   }
 }
 </script>
