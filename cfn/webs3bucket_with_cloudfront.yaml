@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Simple CloudFront distribution with an S3 origin'
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: Name of existing S3 bucket
+
+Resources:
+  S3BucketPolicyWithAOI:
+    Metadata:
+      Comment: 'Bucket policy to allow cloudfront to access the data'
+    Properties:
+      Bucket: !Ref S3BucketName
+      PolicyDocument:
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: 'Allow'
+            Principal:
+              CanonicalUser: !GetAtt CfOriginAccessIdentity.S3CanonicalUserId
+            Resource:
+              - !Sub 'arn:aws:s3:::${S3BucketName}/*'
+    Type: 'AWS::S3::BucketPolicy'
+
+
+  CfDistributionWithAOI:
+    Type: "AWS::CloudFront::Distribution"
+    Metadata:
+      Comment: 'A simple CloudFront distribution with an S3 origin'
+    Properties:
+      DistributionConfig:
+        Comment: 'A simple distribution with an S3 origin'
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - 'HEAD'
+            - 'GET'
+          CachedMethods:
+            - 'HEAD'
+            - 'GET'
+          Compress: false
+          DefaultTTL: 30
+          ForwardedValues:
+            Cookies:
+              Forward: 'none'
+            Headers:
+              - 'Origin'
+            QueryString: false
+          MaxTTL: 60
+          MinTTL: 10
+          TargetOriginId: !Sub 'S3-${S3BucketName}'
+          ViewerProtocolPolicy: 'redirect-to-https'
+        DefaultRootObject: 'index.html'
+        Enabled: true
+        HttpVersion: 'http1.1'
+        IPV6Enabled: false
+        Origins:
+          - DomainName: !Sub '${S3BucketName}.s3-us-east-1.amazonaws.com'
+            Id: !Sub 'S3-${S3BucketName}'
+            OriginPath: ''
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CfOriginAccessIdentity}'
+        PriceClass: 'PriceClass_All'
+        CustomErrorResponses:  #for SPA
+          - ErrorCachingMinTTL: 0
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+
+  CfOriginAccessIdentity:
+    Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
+    Metadata:
+      Comment: 'Access S3 bucket content only through CloudFront'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: 'Access S3 bucket content only through CloudFront'
+
+Outputs:
+  S3BucketName:
+    Description: 'Bucket name'
+    Value: !Ref S3BucketName
+  CfDistributionWithOAI:
+    Description: 'Id for our cloudfront distribution'
+    Value: !Ref CfDistributionWithAOI
+  CfDistributionDomainNameWithOAI:
+    Description: 'Domain name for our cloudfront distribution'
+    Value: !GetAtt CfDistributionWithAOI.DomainName

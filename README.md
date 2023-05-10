@@ -55,3 +55,32 @@ npm run test:e2e
 ```sh
 npm run lint
 ```
+### Run Unit Tests for Serveless functions in the root directory
+
+Make sure to install the right packages first
+
+Window 
+```sh
+pip3 install -r .\requirements.txt
+```
+
+Linux 
+```sh
+pip3 install -r requirements.txt
+```
+
+Also ask for access key and secret access key from admin and add
+it through aws configure
+
+```sh
+aws configure
+```
+
+After all the setup, run the following command
+
+```sh
+bash run_test.sh
+```
+
+For more detail on the test result, go to API/unit_tests/htmlcov
+open the index.html and see the report
