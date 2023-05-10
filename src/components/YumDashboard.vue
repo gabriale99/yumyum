@@ -77,7 +77,7 @@ export default {
             label: '',
             data: Object.values(resp['data']),
             backgroundColor: [
-              'rgba(255, 99, 132)',
+              'rgba(99, 132, 255)',
             ],
             'xAxisID': 'Cuisine'
           }]

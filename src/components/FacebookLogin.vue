@@ -45,6 +45,24 @@ export default {
     ...mapStores(useUserStore),
   },
   methods: {
+    checkLoginStatus() {
+      let app = this;
+      FB.getLoginStatus(function(response) {
+        if (response.status === 'connected') {
+          var uid = response.authResponse.userID;
+          var accessToken = response.authResponse.accessToken;
+          app.userStore.setupUser(uid, accessToken)
+          FB.api('/me/picture', 'GET', {
+            "redirect": false,
+            "type": "large",
+            "access_token": app.userStore.accessToken
+          }, function(response) {
+            app.userStore.storeProfilePic(response.data.url);
+            router.push('/home');
+          });
+        }
+      });
+    },
     login() {
       let app = this;
       let api = environment.yumyumapi;
@@ -60,7 +78,7 @@ export default {
           
           FB.api('/me/picture', 'GET', {
             "redirect": false,
-            "type": "small",
+            "type": "large",
             "access_token": app.userStore.accessToken
           }, function(response) {
             // console.log(app.userStore.accessToken)
@@ -86,25 +104,7 @@ export default {
     },
   },
   mounted() {
-    let app = this;
-    FB.getLoginStatus(function(response) {
-      // console.log(response)
-      if (response.status === 'connected') {
-        var uid = response.authResponse.userID;
-        var accessToken = response.authResponse.accessToken;
-        app.userStore.setupUser(uid, accessToken)
-        FB.api('/me/picture', 'GET', {
-          "redirect": false,
-          "type": "small",
-          "access_token": app.userStore.accessToken
-        }, function(response) {
-          // console.log(app.userStore.accessToken)
-          app.userStore.storeProfilePic(response.data.url);
-          router.push('/home');
-        });
-        
-      }
-    });
+    this.checkLoginStatus();
   },
 }
 </script>

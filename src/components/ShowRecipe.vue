@@ -15,7 +15,7 @@
             icon="mdi-arrow-u-left-top"
             @click="selectRecipe(null)"
           ></v-btn>
-          <div class="d-flex justify-center text-h2">{{ recipe.Name }}</div>
+          <div class="d-flex justify-center text-h3">{{ recipe.Name }}</div>
           <div class="right-icons">
             <v-btn
               v-show="!recipeToShow"
@@ -181,7 +181,7 @@ export default {
     border-left: 2px solid rgb(7, 29, 100);
     padding-left: 12px;
     color: black;
-    max-height: 68vh;
+    max-height: 69vh;
   }
 
   .i-title {
