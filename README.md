@@ -55,19 +55,32 @@ npm run test:e2e
 ```sh
 npm run lint
 ```
-aws cloudformation deploy \
---region us-east-1 \
---template-file web-ui-stack.yaml \
---stack-name yumyum-ui \
---capabilities CAPABILITY_IAM
+### Run Unit Tests for Serveless functions in the root directory
 
+Make sure to install the right packages first
 
-aws cloudformation deploy \
---region us-east-1 \
---template-file webs3bucket_with_cloudfront.yaml \
---stack-name yumyum-ui-cloudfront \
---parameter-overrides S3BucketName=yumyum-ui-websitebucket-wk7m12rje6di
+Window 
+```sh
+pip3 install -r .\requirements.txt
+```
 
-Identity pool ID 
-us-east-1:dc7e6ff8-3555-4f6f-ba1b-a30c5510fe13
-APP Id : 2550952455058803
+Linux 
+```sh
+pip3 install -r requirements.txt
+```
+
+Also ask for access key and secret access key from admin and add
+it through aws configure
+
+```sh
+aws configure
+```
+
+After all the setup, run the following command
+
+```sh
+bash run_test.sh
+```
+
+For more detail on the test result, go to API/unit_tests/htmlcov
+open the index.html and see the report
