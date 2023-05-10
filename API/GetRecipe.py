@@ -1,16 +1,23 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from datetime import datetime
+import logging
 import random
 import simplejson as json
 
 def lambda_handler(event, context):
+    if 'testing' in event['queryStringParameters']:
+        dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
+        client = boto3.client('dynamodb', endpoint_url='http://localhost:8000')
+    else:  #  pragma: no cover
+        dynamodb = boto3.resource('dynamodb')
+        client = boto3.client('dynamodb')
+
     date_today = int(datetime.today().strftime('%Y%m%d'))
-    client = boto3.resource('dynamodb')
-    user_table = client.Table('user')
+    user_table = dynamodb.Table('user')
     user_id = event['queryStringParameters']['UserID']
     user_record = user_table.get_item(Key={'UserID': str(user_id)})['Item']
-    recipe_table = client.Table('recipe')
+    recipe_table = dynamodb.Table('recipe')
     recipe_sameday = None
     
     if 'RecipeID' in event['queryStringParameters']:
@@ -38,15 +45,21 @@ def lambda_handler(event, context):
             
             # Start with a different preference every time
             random.shuffle(preference)
-            
+
             # try to select a recipe by preference to reduce the time
             for p in preference:
-                if recipe:
+                if recipe:  #  pragma: no cover
                     break
+
                 recipes = recipe_table.query(
                     IndexName='Region-index',
                     KeyConditionExpression=Key('Region').eq(p))
                 recipes = recipes['Items']
+                if not recipes:
+                    continue
+
+                if user_record['Vegetarian']:
+                    recipes = list(filter(lambda r: r['TypeOfMeal'] == 'Vegetarian', recipes))
 
                 # filtering regarding ingredient
                 filtered_recipes = []
@@ -73,12 +86,14 @@ def lambda_handler(event, context):
                     else:
                         recipe = random.choice(filtered_recipes)
                 
-            # If no recipe matches the ingredient 
+            # If no recipe matches the ingredient and the cuisine preferences
             if not recipe:
-                recipe_id = random.randrange(1, 50000, 1)
+                table_detail = client.describe_table(TableName='recipe')
+                table_detail = table_detail['Table']
+                recipe_id = random.randrange(1, table_detail['ItemCount'], 1)
                 recipe = recipe_table.get_item(Key={'ID': int(recipe_id)})
                 recipe = recipe['Item']
-        
+
             # leave history on previous recipe
             user_table.update_item(
                 Key={"UserID": str(user_id)},
@@ -86,7 +101,14 @@ def lambda_handler(event, context):
                 ExpressionAttributeValues={':val1': int(date_today)},
                 ExpressionAttributeNames={'#key': str(recipe['ID'])}
             )
-   
+
+    favorited = recipe['ID'] in user_record['FavoriteRecipes']
+    
+    body = {
+        "recipe": recipe,
+        "favorited": favorited
+    }
+
     return {
         'statusCode': 200,
         'headers': {
@@ -94,5 +116,5 @@ def lambda_handler(event, context):
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Content-Type'
         },
-        'body': json.dumps(recipe)
+        'body': json.dumps(body)
     }

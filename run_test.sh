@@ -18,7 +18,7 @@ echo "DynamoDB Local started."
 cd ..
 cd API/unit_tests
 echo "Running pytest"
-python -m coverage run -m pytest
+python -m coverage run -m pytest -vv
 python -m coverage report
 python -m coverage html
 
