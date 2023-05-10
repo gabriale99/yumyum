@@ -30,3 +30,8 @@ a,
   position: absolute !important;
   right: 0;
 }
+
+.v-label {
+  color: black !important;
+  opacity: 1 !important;
+}

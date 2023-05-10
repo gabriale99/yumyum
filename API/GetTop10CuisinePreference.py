@@ -7,7 +7,7 @@ def sort_key(x):
     return x[1], -ord(x[0][0])
 
 def lambda_handler(event, context):
-    if event:
+    if event["queryStringParameters"]:
         client = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
     else:  #  pragma: no cover
         client = boto3.resource('dynamodb')

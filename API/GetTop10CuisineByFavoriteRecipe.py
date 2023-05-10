@@ -1,9 +1,8 @@
 import boto3
 import simplejson as json
-import pandas as pd
 
 def lambda_handler(event, context):
-    if event:
+    if event["queryStringParameters"]:
         client = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
     else:  #  pragma: no cover
         client = boto3.resource('dynamodb')
@@ -18,18 +17,20 @@ def lambda_handler(event, context):
         ExpressionAttributeValues={':num' : 0}
     )['Items']
     
-    favorite_recipes = []
     if users:
+        favorite_recipes = []
         for u in users:
             favorite_recipes.extend(u['FavoriteRecipes'])
 
         unique_recipes = list(set(favorite_recipes))
+        counter = { int(i): favorite_recipes.count(i) for i in unique_recipes }
         len_recipes = len(unique_recipes)
+        
+        recipes = []
+        for r in unique_recipes:
+            recipe = recipe_table.get_item(Key={'ID': r})
+            recipes.append(recipe['Item'])
 
-        recipes = recipe_table.scan(
-            FilterExpression=f"ID in ({','.join([':val' + str(i) for i in range(len_recipes)])})",
-            ExpressionAttributeValues={f":val{i}": r for i, r in enumerate(unique_recipes)}
-        )['Items']
 
         recipes = [
             {
@@ -41,13 +42,15 @@ def lambda_handler(event, context):
             } for r in recipes
         ]
 
-        recipes = pd.DataFrame(recipes)
-        counter = [{ 'ID': int(i), 'Count': favorite_recipes.count(i) } for i in unique_recipes]
-        counter = pd.DataFrame(counter)
-        recipes = recipes.merge(counter, on=['ID'])
-        recipes = recipes.nlargest(10, 'ID', 'first')
+        res = []
+        for recipe in recipes:
+            count = counter.get(recipe['ID'])
+            recipe['Count'] = count
+            res.append(recipe)
+
+
         body = {
-            "data": recipes.to_dict(orient="records")
+            "data": res
         }
     else:
         body = {
