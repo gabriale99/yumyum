@@ -4,8 +4,9 @@ import { storeToRefs } from 'pinia';
 import { useTabStore } from '../stores/tabs';
 import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
-import ShowRecipe from '../components/ShowRecipe.vue'
+import AboutComponent from '../components/AboutComponent.vue'
 import ListRecipes from '../components/ListRecipes.vue'
+import ShowRecipe from '../components/ShowRecipe.vue'
 import YumDashboard from '../components/YumDashboard.vue'
 
 const user = useUserStore();
@@ -60,7 +61,8 @@ const tab = currentTab.value? ref(currentTab.value) : ref(0)
     <div class="d-flex main-background justify-center">
       <ShowRecipe v-if="tab === 0" />
       <ListRecipes v-else-if="tab === 1" />
-      <YumDashboard v-else />
+      <YumDashboard v-else-if="tab === 2" />
+      <AboutComponent v-else />
     </div>
   </main>
 </template>

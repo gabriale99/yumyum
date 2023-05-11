@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export const useTabStore = defineStore('tab', {
   state: () => ({
     tab: 0,
-    defaultTabs : ['Daily Refresh', 'Favorites', 'Analytics'],
+    defaultTabs : ['Daily Refresh', 'Favorites', 'Analytics', 'About'],
     selectedRecipe: null,
   }),
   getters: {
