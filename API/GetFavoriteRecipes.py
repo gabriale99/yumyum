@@ -48,7 +48,7 @@ def lambda_handler(event, context):
         status_code = 400
         body = {
             'error': e.__str__() if isinstance(e, KeyError) else e.response['Error']['Message'] ,
-            'message': "Unable to retreive the favorite recipes"
+            'message': "Unable to retrieve the favorite recipes"
         }
     
     return {

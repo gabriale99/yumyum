@@ -91,7 +91,7 @@ class TestLambdaHandler():
         }
 
         expected_output = {
-                'message': 'Unable to retreive the favorite recipes',
+                'message': 'Unable to retrieve the favorite recipes',
                 'error': 'One or more parameter values were invalid: Type mismatch for key'
             }
 

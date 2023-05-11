@@ -4,7 +4,7 @@ from ..GetTop10CuisinePreference import lambda_handler as get_top_10_cuisine
 
 class TestLambdaHandler():
 
-    def test_get_resource(self):
+    def test_get_top_10_cuisine_preference(self):
         event = {
             "queryStringParameters": {
                 "testing": True
